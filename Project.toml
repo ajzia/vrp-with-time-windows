@@ -3,6 +3,10 @@ uuid = "2f4a8497-51d4-4879-9a67-e673faec8f39"
 authors = ["Joanna Kulig"]
 version = "1.0.0-DEV"
 
+[deps]
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
 [compat]
 julia = "1"
 
