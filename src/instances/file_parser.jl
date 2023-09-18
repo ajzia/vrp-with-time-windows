@@ -1,8 +1,7 @@
 module IO
   include("types.jl")
-  export file_path, read_instance
+  export file_path, read_instance, write_results
 
-  # saving results to .json file
   using JSON
   using Dates
 
@@ -19,13 +18,10 @@ module IO
       readline(file), r"\s+", keepempty=false
     )
 
-  # tests: correct number of customers when chosen
-  # error tests: no_customers < -1, no_customers == 0, file does not exist
-  # read file with no customers ?
+
   function read_instance(path::String, no_customers::Int=-1)::Instance
     if (!isfile(file_path(path)))
-      println("File $path does not exist")
-      return
+      throw(ArgumentError("File $path does not exist")) 
     end
 
     if (no_customers == 0 || no_customers < -1)
@@ -60,24 +56,41 @@ module IO
   end
 
 
+  @inline function add_depot_to_routes(
+    routes::Vector{Vector{Int}},
+  )::Vector{Vector{Int}}
+    return [[0; route; 0] for route in routes]
+  end
+
   function write_results(
     instance::Instance,
+    greedy_routes::Vector{Vector{Int}},
+    greedy_cost::Float64,
     routes::Vector{Vector{Int}},
     cost::Float64,
     save_coords::Bool=false
   )::Nothing
-    results::Dict = Dict(
-      "cost" => cost,
-      "routes" => routes,
+    
+    results::Dict{String, Any} = Dict(
+      "greedy" => Dict(
+        "cost" => greedy_cost,
+        "routes" => add_depot_to_routes(greedy_routes),
+      ),
+      "population" => Dict(
+        "cost" => cost,
+        "routes" => add_depot_to_routes(routes),
+      ),
     )
-  
-    dir::String = joinpath(
-      @__DIR__,
-      "../../results/data/"
-    )
+    dir::String = file_path("../../results/")
+    (!isdir(dir)) && mkdir(dir)
 
     # will change based on program's parameters
-    path::String = "$(instance.name)_n$(length(instance.customers))_m$(instance.m)_q$(instance.q)_$(Dates.now()).json"
+    path::String = 
+      "$(instance.name)-\
+      n$(length(instance.customers))-\
+      m$(instance.m)-\
+      q$(instance.q)-\
+      $(Dates.now()).json"
   
     if (save_coords == true)
       results["coordinates"] = [
@@ -86,14 +99,12 @@ module IO
       ]
   
       dir = dir * "coords/"
+      (!isdir(dir)) && mkdir(dir)
     end
-  
-    (!isdir(dir)) || mkdir(dir)
   
     open(joinpath(dir, path), "w") do file
       JSON.print(file, results)
     end
   end
-
 
 end # module IO
