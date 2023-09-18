@@ -1,4 +1,4 @@
-# module VRPTWPlots
+module VRPTWPlots
   using JSON
   using Plots
   ENV["GKSwstype"] = "100"
@@ -114,6 +114,4 @@
     return (data, instance_info)
   end
 
-# end # VRPTWPlots
-
-plot_routes("C101-n8-m25-q200-2023-09-18T19:00:13.465.json")
+end # VRPTWPlots
