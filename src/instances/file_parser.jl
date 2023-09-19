@@ -23,12 +23,11 @@ module IO
     if (!isfile(file_path(path)))
       throw(ArgumentError("File $path does not exist")) 
     end
-
+    
     if (no_customers == 0 || no_customers < -1)
-      println("Number of customers must be greater than 0")
-      return
+      throw(ArgumentError("Number of customers must be greater than 0"))
     end
-
+    
     intance_name::String = ""
     vehicle_info::Vector{String} = []
     customers::Vector{Customer} = []
@@ -38,7 +37,6 @@ module IO
       read_line_n_times(file, 3)
       vehicle_info = split_line(file)
       read_line_n_times(file, 4)
-      
       depot_info::Vector{String} = split_line(file)
       push!(customers, Customer(depot_info))
 
@@ -48,8 +46,7 @@ module IO
     end
 
     if (length(customers) == 1)
-      println("File $path does not contain any customers")
-      return
+      throw(ArgumentError("File $path does not contain any customers"))
     end
 
     return Instance(intance_name, vehicle_info, customers)

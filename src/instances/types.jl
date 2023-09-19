@@ -20,6 +20,7 @@ mutable struct Customer
       parse(Int, customer_info[5]),
       parse(Int, customer_info[6])
     )
+    @assert time_windows[1] <= time_windows[2]
     service_time::Int = parse(Int, customer_info[7])
     new(id, coordinates, demand, time_windows, service_time)
   end
