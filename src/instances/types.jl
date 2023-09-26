@@ -1,5 +1,3 @@
-include("preprocessing.jl")
-
 mutable struct Customer
   id::Int
   coordinates::Tuple{Int, Int}
@@ -58,16 +56,6 @@ struct Instance
         customers[i].coordinates,
         customers[j].coordinates
       )
-    end
-
-    # preprocess time windows
-    time_windows = reduce_time_windows(
-        [customer.time_windows for customer in customers],
-        distances
-      )
-
-    for i in 1:no_customers
-      customers[i].time_windows = time_windows[i]
     end
 
     new(name, m, q, customers[1], customers[2:end], distances)
