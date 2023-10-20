@@ -2,25 +2,41 @@ mutable struct Customer
   id::Int
   coordinates::Tuple{Int, Int}
   demand::Int
-  time_windows::Tuple{Float64, Float64}
+  time_window::Tuple{Float64, Float64}
   service_time::Int
 
   function Customer(
     customer_info::Vector{String}
   )::Customer
+    if length(customer_info) != 7
+      throw(
+        "Not enough / too much information about customer.\
+         Required: 7, Got: $(length(customer_info))"
+      )
+    end
+
     id::Int = parse(Int, customer_info[1])
+    if id < 0
+      throw("Id cannot be a negative number")
+    end
+
     coordinates::Tuple{Int, Int} = (
       parse(Int, customer_info[2]),
       parse(Int, customer_info[3])
     )
     demand::Int = parse(Int, customer_info[4])
-    time_windows::Tuple{Float64, Float64} = (
+    time_window::Tuple{Float64, Float64} = (
       parse(Int, customer_info[5]),
       parse(Int, customer_info[6])
     )
-    @assert time_windows[1] <= time_windows[2]
+    if !(0 <= time_window[1] <= time_window[2])
+      throw(
+        "Time window should start at least at 0 and\
+         at most be equal to the end time")
+    end
+
     service_time::Int = parse(Int, customer_info[7])
-    new(id, coordinates, demand, time_windows, service_time)
+    new(id, coordinates, demand, time_window, service_time)
   end
 end
 
@@ -38,8 +54,40 @@ struct Instance
     vehicle_info::Vector{String},
     customers::Vector{Customer}
   )::Instance
+    if isempty(name)
+      throw("Instance name cannot be empty")
+    end
+
+    if length(vehicle_info) != 2
+      throw(
+        "Not enough information about instance's vehicles.\
+         Required: 2, Got: $(length(vehicle_info))"
+      )
+    end
+
     m::Int = parse(Int, vehicle_info[1])
     q::Int = parse(Int, vehicle_info[2])
+    if m <= 0
+      throw("Number of vehicles has to be positive. Got: $(m)")
+    end
+
+    if !(0 < maximum([c.demand for c in customers]) <= q)
+      throw(
+        "Vehicle capacity has to be positive and higher \
+         than any customer demand. Required: \
+         $(maximum([c.demand for c in customers])), Got: $(q)"
+      )
+    end
+
+    # operating based on id is important, hence checking
+    # whether each customer has their own unique id
+    if length(unique([c.id for c in customers])) != length(customers)
+      throw("All customers have to have their own uniqe id")
+    end
+
+    if length(unique([c.coordinates for c in customers])) != length(customers)
+      throw("All customers have to have their own uniqe coordinates")
+    end
 
     @inline euclidean_distance(coords1, coords2)::Float64 =
       trunc(sqrt(
@@ -58,7 +106,20 @@ struct Instance
       )
     end
 
-    new(name, m, q, customers[1], customers[2:end], distances)
+    # customers cannot have time window starting after depot's
+    # closing time (it would make visiting the customer impossible)
+    depot::Customer = customers[1]
+    depot_closing_time::Int = depot.time_window[2]
+    for c in customers[2:end]
+      if c.time_window[1] >= depot_closing_time
+        throw(
+          "Customers time window must start before \
+           depot's closing time."
+        )
+      end
+    end
+
+    new(name, m, q, depot, customers[2:end], distances)
   end
 end
 

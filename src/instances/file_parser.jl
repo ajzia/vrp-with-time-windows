@@ -1,5 +1,6 @@
 module IO
   include("types.jl")
+  export Instance, Customer
   export file_path, read_instance, write_results
 
   using JSON
@@ -20,11 +21,11 @@ module IO
 
 
   function read_instance(path::String, no_customers::Int=-1)::Instance
-    if (!isfile(file_path(path)))
+    if !isfile(file_path(path))
       throw(ArgumentError("File $path does not exist")) 
     end
     
-    if (no_customers == 0 || no_customers < -1)
+    if no_customers == 0 || no_customers < -1
       throw(ArgumentError("Number of customers must be greater than 0"))
     end
     
@@ -45,19 +46,13 @@ module IO
       end
     end
 
-    if (length(customers) == 1)
+    if length(customers) == 1
       throw(ArgumentError("File $path does not contain any customers"))
     end
 
     return Instance(intance_name, vehicle_info, customers)
   end
 
-
-  @inline function add_depot_to_routes(
-    routes::Vector{Vector{Int}},
-  )::Vector{Vector{Int}}
-    return [[0; route; 0] for route in routes]
-  end
 
   function write_results(
     instance::Instance,
@@ -71,11 +66,11 @@ module IO
     results::Dict{String, Any} = Dict(
       "greedy" => Dict(
         "cost" => greedy_cost,
-        "routes" => add_depot_to_routes(greedy_routes),
+        "routes" => greedy_routes,
       ),
       "population" => Dict(
         "cost" => cost,
-        "routes" => add_depot_to_routes(routes),
+        "routes" => routes,
       ),
     )
     dir::String = file_path("../../results/")
@@ -89,7 +84,7 @@ module IO
       q$(instance.q)-\
       $(Dates.now()).json"
   
-    if (save_coords == true)
+    if save_coords == true
       results["coordinates"] = [
         instance.depot.coordinates;
         [customer.coordinates for customer in instance.customers]
