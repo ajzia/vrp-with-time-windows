@@ -7,9 +7,10 @@ module VRPTWPlots
 
   # Due to the fact that many instances have big
   # number of available vehicles and that every
-  # route has to have a different color. Basic
-  # color palette has only 16 colors.
-  color_palette = [ # 44 colors
+  # route has to have a different color, I created
+  # my own palette consisting of 44 colors, while
+  # the basic color palette only has 16 colors.
+  color_palette = [
     :cornflowerblue, :maroon1,:orange, :lawngreen,
     :magenta4, :gold, :orchid1, :cyan,
     :lightsalmon1, :purple1, :dodgerblue, :fuchsia,
@@ -23,28 +24,34 @@ module VRPTWPlots
     :brown, :darkturquoise, :slategray, :skyblue2
   ]
 
+  
   function plot_routes(
     path::String,
   )::Nothing
-    (data::Dict, instance_info::Vector) =  get_instance_info(path, "routes")
+    (data::Dict, instance_info::Vector) = get_instance_info(path, "routes")
 
-    coords::Vector{Tuple{Int, Int}} = 
+    coords::Vector{Tuple{Int, Int}} =
       [(x,y) for (x, y) in data["coordinates"]]
 
+    max_x::Int = maximum([x for (x, y) in coords])
+    max_y::Int = maximum([y for (x, y) in coords])
+
     for algorithm in ["greedy", "population"]
+      # Depot's coordinates
       p = plot(
         coords[1],
         seriestype=:scatter,
-        markersize=6,
+        markersize=10,
         markershape=:star5,
         label="Depot",
         xticks=0:10:100,yticks=0:10:100,
         xlim=(0, 100), ylim = (0, 100),
         size=(800, 800),
-        legend=:outerbottom, legendcolumns=2,
+        legend=:outerbottom, legendcolumns=3,
         color=:black
       )
-  
+
+      # Customers' coordinates
       plot!(
         coords[2:end],
         seriestype=:scatter,
@@ -58,9 +65,10 @@ module VRPTWPlots
       for (i, route) in enumerate(data[algorithm]["routes"])
         x_coords = [
           [coords[j+1][1], coords[k+1][1]] for (j, k) in zip(route, route[2:end])]
-        y_coords = 
-        [[coords[j+1][2], coords[k+1][2]] for (j, k) in zip(route, route[2:end])]
+        y_coords = [
+          [coords[j+1][2], coords[k+1][2]] for (j, k) in zip(route, route[2:end])]
 
+        # Routes
         plot!(x_coords, y_coords,
           GR.setarrowsize(0.5),
           arrow=Plots.Arrow(:closed, :head, 0.1, 0.1),
@@ -70,13 +78,16 @@ module VRPTWPlots
           label="",
           color=color_palette[i],
         )
-
-        plot!([], [], label="$i", color=color_palette[i])
+        
+        plot!([], [], label="Route $i", color=color_palette[i])
       end
+
+      save_path::String = split(path, "/")[end]
+      save_path = save_path[1:end-5]
 
       dir::String = joinpath(@__DIR__, "../../results/plots/")
       (!isdir(dir)) && mkdir(dir)
-      savefig(p, dir* "$(path)_$(algorithm).svg")
+      savefig(p, dir * "$(save_path)_$(algorithm).svg")
     end
   end # plot_routes
 
@@ -85,12 +96,12 @@ module VRPTWPlots
     plot_type::String
   )::Tuple{Dict, Vector}
     dir::String = "../../results/"
-    if (plot_type == "routes")
+    if plot_type == "routes"
       dir = dir * "coords/"
     end
 
     dir = joinpath(@__DIR__, dir * path)
-    if (!isfile(dir))
+    if !isfile(dir)
       throw(ArgumentError("File $path does not exist")) 
     end
 
@@ -100,12 +111,12 @@ module VRPTWPlots
     )
 
     parameters::Vector{String} = split(path, "-")
-    if (length(parameters) < 4)
+    if length(parameters) < 4
       throw(ArgumentError("File $path does not contain instance parameters"))
     end
 
     instance_info = [
-      parameters[1], # name
+      split(parameters[1], "/")[end], # name
       parse(Int, parameters[2][2:end]), # no_customers
       parse(Int, parameters[3][2:end]), # no_vehicles
       parse(Int, parameters[4][2:end]), # capacity
