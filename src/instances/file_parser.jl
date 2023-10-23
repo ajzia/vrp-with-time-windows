@@ -62,7 +62,7 @@ module IO
     cost::Float64,
     save_coords::Bool=false
   )::Nothing
-    
+    println("Saving results... ")
     results::Dict{String, Any} = Dict(
       "greedy" => Dict(
         "cost" => greedy_cost,
@@ -79,20 +79,20 @@ module IO
     # will change based on program's parameters
     path::String = 
       "$(instance.name)-\
-      n$(length(instance.customers))-\
+      n$(length(instance.customers)-1)-\
       m$(instance.m)-\
       q$(instance.q)-\
       $(Dates.now()).json"
   
     if save_coords == true
-      results["coordinates"] = [
-        instance.depot.coordinates;
+      results["coordinates"] =
         [customer.coordinates for customer in instance.customers]
-      ]
   
       dir = dir * "coords/"
       (!isdir(dir)) && mkdir(dir)
     end
+
+    println("> Results saved in: ", path)
   
     open(joinpath(dir, path), "w") do file
       JSON.print(file, results)

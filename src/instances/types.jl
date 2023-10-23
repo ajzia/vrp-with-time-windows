@@ -45,7 +45,6 @@ struct Instance
   name::String
   m::Int
   q::Int
-  depot::Customer
   customers::Vector{Customer}
   distances::Array{Float64, 2}
 
@@ -119,7 +118,7 @@ struct Instance
       end
     end
 
-    new(name, m, q, depot, customers[2:end], distances)
+    new(name, m, q, customers, distances)
   end
 end
 
