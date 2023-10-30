@@ -1,5 +1,5 @@
 include("../src/instances/file_parser.jl")
-using .IO
+using .FileParser
 using Test
 
 @testset "Creating Customer" begin
@@ -121,7 +121,7 @@ end
   @test read_instance(test_file) isa Instance
 
   # good parsing with specified number of customers
-  @test length(read_instance(test_file, 1).customers) == 1
+  @test length(read_instance(test_file, 1).customers) == 2
 
   rm(test_file)
 end

@@ -36,7 +36,7 @@ function reduce_time_windows(
   
   while true
     for (customer, window) in enumerate(time_windows)
-      if (customer == 1) continue end
+      if customer == 1 continue end
       # minimal arrival time from predecessors
       reduced_windows[customer] = (
         reduce_arrival_time(
@@ -82,7 +82,7 @@ function reduce_time_windows(
       )
     end
 
-    if (reduced_windows == time_windows)
+    if reduced_windows == time_windows
       break
     end
 

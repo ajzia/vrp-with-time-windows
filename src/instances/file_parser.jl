@@ -1,4 +1,4 @@
-module IO
+module FileParser
   include("types.jl")
   export Instance, Customer
   export file_path, read_instance, write_results
@@ -99,4 +99,4 @@ module IO
     end
   end
 
-end # module IO
+end # module FileParser
