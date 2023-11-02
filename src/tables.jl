@@ -1,5 +1,6 @@
 include("./instances/file_parser.jl")
 using .FileParser
+using ArgParse
 
 const nearest_neighbour_labels::Vector{String} = [
   "\$\\delta1\$",
@@ -7,15 +8,21 @@ const nearest_neighbour_labels::Vector{String} = [
   "\$\\delta3\$",
 ]
 
-const solomon_customers::Vector{Int} = [
-  25, 50, 100,
+instance_data::Dict = Dict(
+  "Solomon" => Dict(
+    "customers" => [25, 50, 100,],
+    "instance_types" => ["C1", "C2", "R1", "R2", "RC1", "RC2",],
+  ),
+  "Homberger" => Dict(
+    "customers" => [200, 400, 600, 800, 1000,],
+    "instance_types" => ["C1", "C2", "R1", "R2", "RC1", "RC2",],
+  )
+)
+
+const algorithms::Vector{String} = [
+  "nearest_neighbour",
 ]
 
-const homberger_customers::Vector{Int} = [
-  # in homberger, we take into consideration
-  # all of the instance's customers,
-  # its varying from 200 to 1000 
-]
 
 function Base.zeros(::Type{String}, n::Int)::Vector{String}
   return ["" for _ in 1:n]
@@ -50,4 +57,70 @@ function generate_latex_table(
   end
 
   return (labels, table)
+end
+
+function parse_arguments()::ArgParseSettings
+  parse_settings::ArgParseSettings = ArgParseSettings()
+  @add_arg_table! parse_settings begin
+    "--instance_type", "-i"
+      help = "Instance type to use, available: \
+              $(collect(keys(instance_data)))"
+      arg_type = String
+      required = true
+    "--instance_family", "-f"
+      help = "Instance family, available: \
+              $(instance_data["Solomon"]["instance_types"])"
+      arg_type = String
+      required = true
+    "nearest_neighbour", "n"
+      help = "Choosing nearest neighbour algorithm to run"
+      action = :command
+    "populational", "p"
+      help = "Choosing populational algorithm to run"
+      action = :command
+  end
+
+  @add_arg_table! parse_settings["nearest_neighbour"] begin
+    "--delta1", "-d"
+      help = "Constant for geographical distance being \
+              taken into consideration in the process of \
+              choosing next customer to visit"
+      arg_type = Float64
+      required = true
+    "--delta2", "-T"
+      help = "Constant for temporal closeness being \
+              taken into consideration in the process of \
+              choosing next customer to visit"
+      arg_type = Float64
+      required = true
+    "--delta3", "-u"
+      help = "Constant for urgency of delivery being \
+              taken into consideration in the process of \
+              choosing next customer to visit"
+      arg_type = Float64
+      required = true
+  end
+
+  return parse_settings
+end
+
+
+function main(args::Dict)::Nothing
+
+end
+
+
+if abspath(PROGRAM_FILE) == @__FILE__
+  parse_settings = parse_arguments()
+  args::Dict = parse_args(ARGS, parse_settings)
+
+  if args["%COMMAND%"] == "nearest_neighbour"
+    params::Dict = args["nearest_neighbour"]
+    if params["delta1"] < 0. || params["delta2"] < 0. || params["delta3"] < 0. ||
+       params["delta1"] > 1. || params["delta2"] > 1. || params["delta3"] > 1.
+      error("All delta values must be in range (0, 1]")
+    end
+  end
+
+  main(args)
 end
