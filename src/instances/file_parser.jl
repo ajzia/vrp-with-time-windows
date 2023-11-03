@@ -120,11 +120,11 @@ module FileParser
         open(path, "a") do file
           write(file, "\\begin{table}[H]\n")
           write(file, "    \\centering\n")
-          write(file, "        \\caption{$(table_titles[index]).$key} ")
-          write(file, "\\label{tab:$(table_titles[index])}\n")
+          write(file, "        \\caption{$(table_titles[index]) with $key customers} ")
+          write(file, "\\label{tab:$(table_titles[index])_$key}\n")
           write(file, "        \\begin{tabular}{lrrrr}\n")
           write(file, "        \\toprule\n")
-          write(file, "        $(join([labels..., "K.$key", "Dist.$key"], " & ")) \\\\\n")
+          write(file, "        $(join([labels..., "\$K_{$key}\$", "\$Dist_{$key}\$"], " & ")) \\\\\n")
           write(file, "        \\midrule\n")
 
           for row in table[instance][key]
