@@ -1,4 +1,6 @@
-include("../instances/types.jl")
+include("../instances/file_parser.jl")
+using Reexport
+@reexport using .FileParser
 
 @inline function find_closest_customer(
   possible_customers::Vector{Int},
@@ -71,8 +73,6 @@ function nearest_neighbour(
     current_customer::Customer = customers[1]
 
     for _ in 1:length(available_customers) + 1 # O(n)
-      println(available_customers)
-      # while true
       begin
         # searching for the customers who can feasibly be
         # added (with respect to current vehicle's capacity,
@@ -103,6 +103,7 @@ function nearest_neighbour(
       end # begin
 
       if isempty(possible_customers)
+        cost += distances[current_id, 1]
         push!(vehicle_route, 0)
         push!(result, vehicle_route)
         break
