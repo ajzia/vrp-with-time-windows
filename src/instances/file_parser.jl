@@ -57,17 +57,17 @@ module FileParser
 
   function write_results(
     instance::Instance,
-    greedy_routes::Vector{Vector{Int}},
-    greedy_cost::Float64,
+    nearest_neighbour_routes::Vector{Vector{Int}},
+    nearest_neighbour_cost::Float64,
     routes::Vector{Vector{Int}},
     cost::Float64,
     save_coords::Bool=false
   )::Nothing
     println("Saving results... ")
     results::Dict{String, Any} = Dict(
-      "greedy" => Dict(
-        "cost" => greedy_cost,
-        "routes" => greedy_routes,
+      "nearest_neighbour" => Dict(
+        "cost" => nearest_neighbour_cost,
+        "routes" => nearest_neighbour_routes,
       ),
       "population" => Dict(
         "cost" => cost,

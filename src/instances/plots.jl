@@ -39,7 +39,7 @@ module VRPTWPlots
     max_y::Int = maximum([y for (x, y) in coords]) + 1
     max_y = max_y + (10 - max_y % 10)
 
-    for algorithm in ["greedy", "population"]
+    for algorithm in ["nearest_neighbour", "population"]
       if isempty(data[algorithm]["routes"])
         continue
       end
