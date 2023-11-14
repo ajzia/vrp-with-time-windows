@@ -41,13 +41,29 @@ using Reexport
   return (customers[best_customer], best_time)
 end
 
+function service_begin_time(
+  customers::Vector{Customer},
+  distances::Array{Float64, 2},
+)::Function
+  @inline function service_start(
+    i_id::Int, j_id::Int, bi::Float64
+  )::Float64
+    return max(
+      customers[j_id].time_window[1],
+      bi + customers[i_id].service_time + distances[i_id, j_id]
+    )
+  end
+
+  return service_start 
+end
+
 
 function nearest_neighbour(
   instance::Instance,
+  args...;
   δ1::Float64 = 0.5,
   δ2::Float64 = 1.,
   δ3::Float64 = 0.3,
-  args...
 )::Tuple{Float64, Vector{Vector{Int}}}
   result::Vector{Vector{Int}} = []
   cost::Float64 = 0.0
@@ -58,11 +74,7 @@ function nearest_neighbour(
   distances::Array{Float64, 2} = instance.distances
   available_customers::Vector{Int} = collect(2:length(customers))
 
-  @inline service_start(i_id::Int, j_id::Int, bi::Float64)::Float64 =
-    max(
-      customers[j_id].time_window[1],
-      bi + customers[i_id].service_time + distances[i_id, j_id]
-    )
+  service_start::Function = service_begin_time(customers, distances)
 
   println("Running nearest neighbour algorithm...")
   for _ in 1:instance.m # O(m)
@@ -83,20 +95,20 @@ function nearest_neighbour(
 
         current_id::Int = current_customer.id + 1
 
-        for client_id::Int in available_customers # O(n)
-          customer::Customer = customers[client_id]
-          b_j::Float64 = service_start(current_id, client_id, b_i)
-          return_time::Float64 = service_start(client_id, 1, b_j)
+        for customer_id::Int in available_customers # O(n)
+          customer::Customer = customers[customer_id]
+          b_j::Float64 = service_start(current_id, customer_id, b_i)
+          return_time::Float64 = service_start(customer_id, 1, b_j)
 
           # checks:
-          # - the vehicle is able to carry client's package
+          # - the vehicle is able to carry customer's package
           # - service start at j is before customers latest time
           # - the vehicle is able to return to depot before
           #   depot's latest time
           if customer.demand <= vehicle_capacity &&
              b_j <= customer.time_window[2] &&
              return_time <= customers[1].time_window[2]
-            push!(possible_customers, client_id)
+            push!(possible_customers, customer_id)
             push!(begin_times, b_j)
           end
         end
