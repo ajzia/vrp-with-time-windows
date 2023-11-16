@@ -120,17 +120,18 @@ function find_best_insertion_places(
         continue
       end
 
+      b_i = begin_times[i_index]
+      prev_id::Int = i_id
       for (j_index, j_id) in enumerate(vehicle_route[i_index+1:end]) # O(n)
-        b_i::Float64 = begin_times[i_index + j_index - 1]
         b_j::Float64 = begin_times[i_index + j_index]
-        push_forward::Float64 = c_12(i_id + 1, u_index, j_id + 1, service_start, b_i, b_j)
+        push_forward::Float64 = c_12(prev_id + 1, u_index, j_id + 1, service_start, b_i, b_j)
         # check if customer's new begin time is within his time window
-        if b_j + push_forward > customers[j_index].time_window[2]
-          continue
+        if b_j + push_forward > customers[j_id+1].time_window[2]
+          break
         end
         # if customer's push forward is equal to 0,
         # then customer u can be inserted between i and j
-        if push_forward == 0 || j_id == vehicle_route[end-1]
+        if push_forward == 0 || j_id == vehicle_route[end]
           insertion_cost::Float64 = c1(
             i_id + 1, u_index, vehicle_route[i_index + 1] + 1,
             service_start, distances,
@@ -143,6 +144,9 @@ function find_best_insertion_places(
             best_place = i_index # insert after i
           end
         end # if
+
+        b_i = b_j
+        prev_id = j_id
       end # for
     end # for
     
@@ -247,15 +251,12 @@ function sequential_insertion(
 
       # update vehicle's capacity and cost of the route
       vehicle_capacity -= customers[customer_index].demand
-      #TODO: fix cost calculation
+
       cost = (cost
               - distances[vehicle_route[i_index] + 1, vehicle_route[i_index + 1] + 1]
               + distances[vehicle_route[i_index] + 1, customer_index]
               + distances[customer_index, vehicle_route[i_index + 1] + 1]
             )
-
-      # insert new customer
-      insert!(vehicle_route, i_index + 1, customer_index - 1)
 
       # remove customer from available customers
       filter!(x -> x != customer_index, available_customers)
@@ -274,6 +275,9 @@ function sequential_insertion(
 
         push!(begin_times, b_j)
       end
+      
+      # insert new customer
+      insert!(vehicle_route, i_index + 1, customer_index - 1)
     end # for
 
     if available_customers == []
