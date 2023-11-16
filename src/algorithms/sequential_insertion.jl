@@ -97,6 +97,25 @@ function service_begin_time(
 end
 
 
+@inline function waiting_time(
+  i_route_index::Int,
+  j_route_index::Int,
+  vehicle_route::Vector{Int},
+  begin_times::Vector{Float64},
+  customers::Vector{Customer},
+  distances::Array{Float64, 2},
+)::Float64
+  customer_i::Customer = customers[vehicle_route[i_route_index] + 1]
+  j_arrival_time::Float64  = (
+    begin_times[i_route_index]
+    + customer_i.service_time
+    + distances[vehicle_route[i_route_index] + 1, vehicle_route[j_route_index] + 1]
+  )
+
+  return begin_times[j_route_index] - j_arrival_time
+end
+
+
 function find_best_insertion_places(
   customers::Vector{Customer},
   possible_customers::Vector{Int},
@@ -113,27 +132,38 @@ function find_best_insertion_places(
     best_place::Int = -1
     best_cost::Float64 = Inf
 
-    for (i_index, i_id) in enumerate(vehicle_route[1:end-1]) # O(n)
-      b_u::Float64 = service_start(i_id + 1, u_index, begin_times[i_index])
+    for (i_route_index, i_id) in enumerate(vehicle_route[1:end-1]) # O(n)
+      b_u::Float64 = service_start(i_id + 1, u_index, begin_times[i_route_index])
       # check if customer's begin time is within his time window
       if (b_u > customers[u_index].time_window[2])
         continue
       end
 
-      b_i = begin_times[i_index]
-      prev_id::Int = i_id
-      for (j_index, j_id) in enumerate(vehicle_route[i_index+1:end]) # O(n)
-        b_j::Float64 = begin_times[i_index + j_index]
-        push_forward::Float64 = c_12(prev_id + 1, u_index, j_id + 1, service_start, b_i, b_j)
-        # check if customer's new begin time is within his time window
-        if b_j + push_forward > customers[j_id+1].time_window[2]
+      b_i::Float64 = begin_times[i_route_index]
+      prev_route_index::Int = i_route_index
+      push_forward::Float64 = -1
+
+      for (j_route_index, j_id) in enumerate(vehicle_route[i_route_index+1:end]) # O(n)
+        b_j::Float64 = begin_times[i_route_index + j_route_index]
+        if j_route_index == 1
+          push_forward = service_start(u_index, j_id + 1, b_u) - b_j
+        else
+          push_forward = max(0., push_forward - waiting_time(
+            prev_route_index, j_route_index,
+            vehicle_route, begin_times,
+            customers, distances
+          ))
+        end
+
+        if (b_j + push_forward) > Float64(customers[j_id+1].time_window[2])
           break
         end
-        # if customer's push forward is equal to 0,
-        # then customer u can be inserted between i and j
-        if push_forward == 0 || j_id == vehicle_route[end]
+
+        if push_forward == 0 ||
+           (i_route_index + j_route_index == length(vehicle_route))
+
           insertion_cost::Float64 = c1(
-            i_id + 1, u_index, vehicle_route[i_index + 1] + 1,
+            i_id + 1, u_index, vehicle_route[i_route_index + 1] + 1,
             service_start, distances,
             b_i, b_j,
             a1=a1, a2=a2, μ=μ
@@ -141,13 +171,13 @@ function find_best_insertion_places(
 
           if insertion_cost < best_cost
             best_cost = insertion_cost
-            best_place = i_index # insert after i
+            best_place = i_route_index # insert after i
           end
-        end # if
+        end
 
         b_i = b_j
-        prev_id = j_id
-      end # for
+        prev_route_index = i_route_index + j_route_index
+      end
     end # for
     
     push!(best_insertion_places, best_place)
@@ -256,7 +286,7 @@ function sequential_insertion(
               - distances[vehicle_route[i_index] + 1, vehicle_route[i_index + 1] + 1]
               + distances[vehicle_route[i_index] + 1, customer_index]
               + distances[customer_index, vehicle_route[i_index + 1] + 1]
-            )
+      )
 
       # remove customer from available customers
       filter!(x -> x != customer_index, available_customers)
@@ -269,13 +299,13 @@ function sequential_insertion(
       )
 
       begin_times = vcat(begin_times[1:i_index], b_u)
-      for (index, j_id) in enumerate(vehicle_route[i_index+1:end])
+      for (j_index, j_id) in enumerate(vehicle_route[i_index+1:end])
         b_i::Float64 = begin_times[end]
-        b_j::Float64 = service_start(vehicle_route[index] + 1, j_id + 1, b_i)
+        b_j::Float64 = service_start(vehicle_route[j_index + i_index] + 1, j_id + 1, b_i)
 
         push!(begin_times, b_j)
       end
-      
+
       # insert new customer
       insert!(vehicle_route, i_index + 1, customer_index - 1)
     end # for

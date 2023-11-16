@@ -14,6 +14,40 @@ const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./ins
     @test five_service_start(2, 3, 112.) == 206.1
   end
 
+  @testset "Calculating waiting time" begin
+    @test waiting_time(
+      1, 2,
+      [0, 0],
+      [0., 400.],
+      five_customers,
+      five_distances,
+    ) == 400.
+
+    @test waiting_time(
+      1, 2,
+      [0, 2, 3, 0],
+      [0., 22, 200, 308.7],
+      five_customers,
+      five_distances,
+    ) == 9
+
+    @test waiting_time(
+      2, 3,
+      [0, 2, 3, 0],
+      [0., 22., 200., 308.7],
+      five_customers,
+      five_distances,
+    ) == 82.7
+
+    @test waiting_time(
+      3, 4,
+      [0, 2, 3, 0],
+      [0., 22., 200., 308.3],
+      five_customers,
+      five_distances,
+    ) == 0
+  end
+
   @testset "Cost functions" begin
     @testset "c_11" begin
       @test_throws "μ must be greater than or equal to 0." c_11(1, 2, 3, five_distances, -1.)
@@ -82,7 +116,7 @@ const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./ins
       [0, 22, five_customers[1].time_window[2]],
       five_distances,
       five_service_start,
-    ) == [-1, 2, 1]
+    ) == [-1, 2, 2]
 
 
     @test find_best_insertion_places(
