@@ -124,17 +124,15 @@ function find_best_insertion_places(
         b_i::Float64 = begin_times[i_index + j_index - 1]
         b_j::Float64 = begin_times[i_index + j_index]
         push_forward::Float64 = c_12(i_id + 1, u_index, j_id + 1, service_start, b_i, b_j)
-
         # check if customer's new begin time is within his time window
-        if b_j + push_forward > customers[1].time_window[2]
+        if b_j + push_forward > customers[j_index].time_window[2]
           continue
         end
-
         # if customer's push forward is equal to 0,
         # then customer u can be inserted between i and j
-        if push_forward == 0 || j_id == vehicle_route[end]
+        if push_forward == 0 || j_id == vehicle_route[end-1]
           insertion_cost::Float64 = c1(
-            i_id + 1, u_index, i_id + 2,
+            i_id + 1, u_index, vehicle_route[i_index + 1] + 1,
             service_start, distances,
             b_i, b_j,
             a1=a1, a2=a2, μ=μ
@@ -239,19 +237,25 @@ function sequential_insertion(
         end
       end
 
-      # insert new customer
+      if best_customer == -1
+        push!(result, vehicle_route)
+        break
+      end
+
       customer_index::Int = possible_customers[best_customer]
       i_index::Int = insertion_places[best_customer]
 
-      insert!(vehicle_route, i_index + 1, customer_index - 1)
-
       # update vehicle's capacity and cost of the route
       vehicle_capacity -= customers[customer_index].demand
+      #TODO: fix cost calculation
       cost = (cost
-              - distances[i_index, i_index + 1]
-              + distances[i_index, customer_index]
-              + distances[customer_index, i_index + 1]
+              - distances[vehicle_route[i_index] + 1, vehicle_route[i_index + 1] + 1]
+              + distances[vehicle_route[i_index] + 1, customer_index]
+              + distances[customer_index, vehicle_route[i_index + 1] + 1]
             )
+
+      # insert new customer
+      insert!(vehicle_route, i_index + 1, customer_index - 1)
 
       # remove customer from available customers
       filter!(x -> x != customer_index, available_customers)
