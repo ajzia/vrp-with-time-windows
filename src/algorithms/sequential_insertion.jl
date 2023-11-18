@@ -315,5 +315,11 @@ function sequential_insertion(
     end
   end # for
 
+  # println(length(available_customers))
   return (cost, result)
 end
+
+
+# instance = read_instance("../../resources/Homberger/C1_2_1.txt")
+# # instance = read_instance("../../resources/Solomon/RC208.txt")
+# sequential_insertion(instance, 1., 0., 2., 1.)

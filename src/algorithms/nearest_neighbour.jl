@@ -11,6 +11,13 @@ using Reexport
   distances::Array{Float64, 2},
   δ1::Float64, δ2::Float64, δ3::Float64
 )::Tuple{Customer, Float64}
+  if δ1 < 0 || δ2 < 0 || δ3 < 0
+    throw("δ1, δ2 and δ3 must be greater than or equal to 0.")
+  end
+
+  if δ1 + δ1 + δ3 != 1.0
+    throw("δ1, δ2 and δ3 must sum to 1.")
+  end
   # c is the metric used to evaluate possible customers
   # based on their geographical and temporal closeness
   c_min::Float64 = typemax(Float64)
@@ -61,8 +68,8 @@ end
 function nearest_neighbour(
   instance::Instance,
   args...;
-  δ1::Float64 = 0.5,
-  δ2::Float64 = 1.,
+  δ1::Float64 = 0.2,
+  δ2::Float64 = 0.5,
   δ3::Float64 = 0.3,
 )::Tuple{Float64, Vector{Vector{Int}}}
   result::Vector{Vector{Int}} = []
