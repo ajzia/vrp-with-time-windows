@@ -6,17 +6,17 @@ using Reexport
   possible_customers::Vector{Int},
   begin_times::Vector{Float64},
   b_i::Float64,
-  current_id::Int,
+  current_id::Int, # customer index
   customers::Vector{Customer},
   distances::Array{Float64, 2},
   δ1::Float64, δ2::Float64, δ3::Float64
 )::Tuple{Customer, Float64}
   if δ1 < 0 || δ2 < 0 || δ3 < 0
-    throw("δ1, δ2 and δ3 must be greater than or equal to 0.")
+    throw("δ1, δ2 and δ3 must be greater than or equal to 0")
   end
 
-  if δ1 + δ1 + δ3 != 1.0
-    throw("δ1, δ2 and δ3 must sum to 1.")
+  if δ1 + δ2 + δ3 ≉  1.
+    throw("δ1, δ2 and δ3 must sum to 1")
   end
   # c is the metric used to evaluate possible customers
   # based on their geographical and temporal closeness
@@ -26,7 +26,7 @@ using Reexport
   for (cust, b_j) in zip(possible_customers, begin_times)
     # time difference between completion of
     # service at i and beginning service at j
-    T_ij::Float64 = b_j - (b_i - customers[cust].service_time)
+    T_ij::Float64 = b_j - (b_i + customers[cust].service_time)
     v_ij::Float64 = ( # urgency of delivery to customer j
       customers[cust].time_window[2]
       - (b_i + customers[current_id].service_time

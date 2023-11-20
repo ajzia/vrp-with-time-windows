@@ -3,7 +3,7 @@ using Test
 
 const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./instance5.txt"))
 
-@testset "Sequential insertion algorithm" verbose = true begin
+@testset "sequential_insertion.jl" verbose = true begin
   five_customers::Vector{Customer} = five_customer_instance.customers
   five_distances::Array{Float64, 2} = five_customer_instance.distances
   five_service_start::Function = service_begin_time(five_customers, five_distances)
@@ -50,7 +50,7 @@ const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./ins
 
   @testset "Cost functions" begin
     @testset "c_11" begin
-      @test_throws "μ must be greater than or equal to 0." c_11(1, 2, 3, five_distances, -1.)
+      @test_throws "μ must be greater than or equal to 0" c_11(1, 2, 3, five_distances, -1.)
 
       @test c_11(1, 2, 3, five_distances) == 7.5
       @test c_11(1, 2, 3, five_distances, 0.) == 20.5
@@ -68,13 +68,13 @@ const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./ins
 
     @testset "c_1" begin
       @test_throws "a1 and a2 must be greater than or equal to 0 \
-      and their sum must be equal to 1." c1(1, 2, 3, five_service_start, five_distances, 1., 1., a1=1., a2=1.)
+      and their sum must be equal to 1" c1(1, 2, 3, five_service_start, five_distances, 1., 1., a1=1., a2=1.)
 
       @test_throws "a1 and a2 must be greater than or equal to 0 \
-      and their sum must be equal to 1." c1(1, 2, 3, five_service_start, five_distances, 1., 1., a1=2., a2=-1.)
+      and their sum must be equal to 1" c1(1, 2, 3, five_service_start, five_distances, 1., 1., a1=2., a2=-1.)
 
       @test_throws "a1 and a2 must be greater than or equal to 0 \
-      and their sum must be equal to 1." c1(1, 2, 3, five_service_start, five_distances,  1., 1., μ=-1.)
+      and their sum must be equal to 1" c1(1, 2, 3, five_service_start, five_distances,  1., 1., μ=-1.)
 
       @test c1(1, 2, 3, five_service_start, five_distances, 0., 22., a1=1., a2=0.) ≈ 7.5
       @test c1(1, 2, 3, five_service_start, five_distances, 0., 22., a1=0., a2=1.) ≈ 124.1
@@ -83,7 +83,7 @@ const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./ins
     end
 
     @testset "c_2" begin
-      @test_throws "lambda must be greater than or equal to 0." c2(1, 2, 3, five_service_start, five_distances, 1., 1., λ=-1.)
+      @test_throws "lambda must be greater than or equal to 0" c2(1, 2, 3, five_service_start, five_distances, 1., 1., λ=-1.)
 
       @test c2(1, 2, 3, five_service_start, five_distances, 0., 22., λ=0.) ≈ -65.8
       @test c2(1, 2, 3, five_service_start, five_distances, 0., 22., λ=1.) ≈ -49.4
@@ -136,5 +136,16 @@ const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./ins
       five_distances,
       five_service_start,
     ) == [-1]
+  end
+
+  @testset "Sequential insertion algorithm" begin
+    @test_nowarn sequential_insertion(five_customer_instance)
+
+    (cost, routes) = sequential_insertion(five_customer_instance, 1)
+    @test length(routes) <= five_customer_instance.m
+    for route in routes
+      @test sum([five_customer_instance.customers[id+1].demand for id in route]) <= five_customer_instance.q
+    end
+
   end
 end

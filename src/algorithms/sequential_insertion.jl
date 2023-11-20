@@ -17,7 +17,7 @@ using Reexport
   μ::Float64 = 1.
 )::Float64
   if μ < 0.
-    throw("μ must be greater than or equal to 0.")
+    throw("μ must be greater than or equal to 0")
   end
 
   return (distances[i_index, u_index]
@@ -46,7 +46,7 @@ end
 )::Float64
   if (a1 + a2) != 1.0 || (a1 < 0. || a2 < 0.)
     throw("a1 and a2 must be greater than or equal to 0 \
-           and their sum must be equal to 1.")
+           and their sum must be equal to 1")
   end
 
   return (
@@ -65,7 +65,7 @@ end
   μ::Float64 = 1.,
 )::Float64
   if λ < 0.
-    throw("lambda must be greater than or equal to 0.")
+    throw("lambda must be greater than or equal to 0")
   end
 
   return (
