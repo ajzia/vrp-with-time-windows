@@ -1,3 +1,5 @@
+include("../../src/instances/types.jl")
+include("../../src/instances/file_parser.jl")
 include("../../src/algorithms/sequential_insertion.jl")
 using Test
 

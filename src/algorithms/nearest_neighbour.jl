@@ -1,6 +1,4 @@
-include("../instances/file_parser.jl")
-using Reexport
-@reexport using .FileParser
+include("./utils.jl")
 
 @inline function find_closest_customer(
   possible_customers::Vector{Int},
@@ -46,22 +44,6 @@ using Reexport
   end
 
   return (customers[best_customer], best_time)
-end
-
-function service_begin_time(
-  customers::Vector{Customer},
-  distances::Array{Float64, 2},
-)::Function
-  @inline function service_start(
-    i_id::Int, j_id::Int, bi::Float64
-  )::Float64
-    return max(
-      customers[j_id].time_window[1],
-      bi + customers[i_id].service_time + distances[i_id, j_id]
-    )
-  end
-
-  return service_start 
 end
 
 

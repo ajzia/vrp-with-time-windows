@@ -5,9 +5,7 @@
 # Algorithms for the Vehicle Routing and Scheduling Problems with Time Window Constraints.
 # Operations Research 35(2):254-265
 
-include("../instances/file_parser.jl")
-using Reexport
-@reexport using .FileParser
+include("./utils.jl")
 
 # ********************* COST FUNCTIONS ********************* #
 
@@ -79,44 +77,7 @@ end
 
 # ********************* COST FUNCTIONS ********************* #
 
-
-function service_begin_time(
-  customers::Vector{Customer},
-  distances::Array{Float64, 2},
-)::Function
-  @inline function service_start(
-    i_index::Int, j_index::Int, b_i::Float64
-  )::Float64
-    return max(
-      customers[j_index].time_window[1],
-      b_i + customers[i_index].service_time + distances[i_index, j_index]
-    )
-  end
-
-  return service_start 
-end
-
-
-@inline function waiting_time(
-  i_route_index::Int,
-  j_route_index::Int,
-  vehicle_route::Vector{Int},
-  begin_times::Vector{Float64},
-  customers::Vector{Customer},
-  distances::Array{Float64, 2},
-)::Float64
-  customer_i::Customer = customers[vehicle_route[i_route_index] + 1]
-  j_arrival_time::Float64  = (
-    begin_times[i_route_index]
-    + customer_i.service_time
-    + distances[vehicle_route[i_route_index] + 1, vehicle_route[j_route_index] + 1]
-  )
-
-  return begin_times[j_route_index] - j_arrival_time
-end
-
-
-function find_best_insertion_places(
+function find_best_insertion_places( # O(n^3)
   customers::Vector{Customer},
   possible_customers::Vector{Int},
   vehicle_route::Vector{Int},
@@ -291,6 +252,9 @@ function sequential_insertion(
       # remove customer from available customers
       filter!(x -> x != customer_index, available_customers)
 
+      # insert new customer
+      insert!(vehicle_route, i_index + 1, customer_index - 1)
+
       # update begin times
       b_u::Float64 = service_start(
         vehicle_route[i_index] + 1,
@@ -306,8 +270,6 @@ function sequential_insertion(
         push!(begin_times, b_j)
       end
 
-      # insert new customer
-      insert!(vehicle_route, i_index + 1, customer_index - 1)
     end # for
 
     if available_customers == []
@@ -318,8 +280,3 @@ function sequential_insertion(
   # println(length(available_customers))
   return (cost, result)
 end
-
-
-# instance = read_instance("../../resources/Homberger/C1_2_1.txt")
-# # instance = read_instance("../../resources/Solomon/RC208.txt")
-# sequential_insertion(instance, 1., 0., 2., 1.)
