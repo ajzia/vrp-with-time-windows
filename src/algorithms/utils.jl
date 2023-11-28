@@ -32,3 +32,40 @@ end
 
   return begin_times[j_route_index] - j_arrival_time
 end
+
+
+@inline function route_to_routes(
+  route::Vector{Int}
+)::Vector{Vector{Int}}
+  depot_id::Int = route[1]
+  routes::Vector{Vector{Int}} = [[depot_id]]
+
+  counter::Int = 1
+  for i in 2:length(route)-1
+    push!(routes[counter], route[i])
+    if route[i] == depot_id
+      counter += 1
+      push!(routes, [depot_id])
+    end
+  end
+
+  push!(routes[counter], depot_id)
+
+  return routes
+end
+
+
+@inline function routes_to_route(
+  routes::Vector{Vector{Int}}
+)::Vector{Int}
+  depot_id::Int = routes[1][1]
+
+  route::Vector{Int} = []
+  for tour in routes
+    route = vcat(route, tour[1:end-1])
+  end
+
+  push!(route, depot_id)
+
+  return route
+end
