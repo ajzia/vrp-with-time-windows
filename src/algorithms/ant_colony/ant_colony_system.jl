@@ -2,6 +2,8 @@ include("../../instances/types.jl")
 include("./ant.jl")
 include("./selection.jl")
 include("./stop_condition.jl")
+include("./insertion_procedure.jl")
+include("../sequential_insertion.jl")
 
 
 function new_active_ant(
@@ -110,6 +112,15 @@ function new_active_ant(
 
     ant.curr_idx = ant.path[1] + 1
   end
+
+  # inserting unrouted customers into ant's path
+  insertion_procedure(
+    ant,
+    customers,
+    distances,
+    service_start,
+    vehicle_capacity,
+  )
 
   return
 end # new_active_ant
