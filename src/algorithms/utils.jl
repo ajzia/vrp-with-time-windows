@@ -34,6 +34,19 @@ end
 end
 
 
+@inline function route_cost(
+  route::Vector{Int},
+  distances::Array{Float64, 2},
+)::Float64
+  cost::Float64 = 0.0
+  for i in 1:length(route)-1
+    cost += distances[route[i] + 1, route[i+1] + 1]
+  end
+
+  return cost
+end
+
+
 @inline function route_to_routes(
   route::Vector{Int}
 )::Vector{Vector{Int}}
