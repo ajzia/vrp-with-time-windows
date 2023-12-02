@@ -9,10 +9,10 @@ function insertion_procedure(
     return
   end
 
-  # ranges for all the routes in path
   routes::Vector{Vector{Int}} = route_to_routes(ant.path)
   no_routes::Int = length(routes)
 
+  # loads for all the routes in path
   route_loads::Vector{Int} = zeros(Int, no_routes)
   for (index, route) in enumerate(routes)
     for cust_id in route[2:end-1]
@@ -69,6 +69,7 @@ function insertion_procedure(
     # no point in inserting next customers,
     # since the solution will be infeasible
     if (best_places .== -1) |> any
+      ant.path = routes_to_route(routes)
       return
     end
 
@@ -105,15 +106,16 @@ function insertion_procedure(
     ins_place::Int = best_places[best_route]
     route::Vector{Int} = routes[best_route]
     route_loads[best_route] += customer.demand
-    ant.cost = (ant.cost
-                - distances[route[ins_place] + 1, route[ins_place + 1] + 1]
-                + distances[route[ins_place] + 1, customer.id + 1]
-                + distances[customer.id + 1, route[ins_place + 1] + 1]
-    )
 
     # insert customer into the best route
     insert!(routes[best_route], ins_place + 1, customer.id)
-    filter!(x -> x != customer.id + 1, ant.unrouted_customers)
+
+    # because of errors due to floating point arithmetic
+    # we need to calculate length of the whole route
+    # rather than updating it
+    ant.cost = route_cost(routes_to_route(routes), distances)
+
+    filter!(x -> x != (customer.id + 1), ant.unrouted_customers)
 
     # update begin times
     route_begin_times[best_route] = [0.]

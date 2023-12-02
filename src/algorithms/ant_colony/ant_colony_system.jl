@@ -4,6 +4,7 @@ include("./selection.jl")
 include("./stop_condition.jl")
 include("./insertion_procedure.jl")
 include("../sequential_insertion.jl")
+include("./local_search_procedure.jl")
 
 
 function new_active_ant(
@@ -110,7 +111,7 @@ function new_active_ant(
     ant.cost += distances[ant.curr_idx, 1]
     ant.unused_depots -= 1
 
-    ant.curr_idx = ant.path[1] + 1
+    ant.curr_idx = 1
   end
 
   # inserting unrouted customers into ant's path
@@ -122,6 +123,18 @@ function new_active_ant(
     vehicle_capacity,
   )
 
+  # local search procedure
+  if isempty(ant.unrouted_customers)
+    local_search_procedure(
+      ant,
+      customers,
+      distances,
+      service_start,
+      vehicle_capacity,
+    )
+  end
+
+  ant.cost = round(ant.cost, digits=2)
   return
 end # new_active_ant
 
@@ -175,14 +188,12 @@ function ant_colony_system(
 
 
     # check if ant's solution is feasible
-    c = 0
     ant_costs::Vector{Float64} = []
     for k in 1:no_ants
       if !isempty(ants[k].unrouted_customers)
         push!(ant_costs, typemax(Float64))
       else
         push!(ant_costs, ants[k].cost)
-        c += 1
       end
     end
     
