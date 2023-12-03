@@ -121,7 +121,6 @@ function local_search_procedure(
     )
 
     if !isempty(temp_path)
-      @assert 101 == length(route_to_routes(temp_path))
       iterations += 1
 
       new_path = temp_path

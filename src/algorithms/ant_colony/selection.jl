@@ -25,3 +25,13 @@ function stochastic_acceptance(
     end
   end
 end
+
+
+# "Tournament Selection Based Artificial Bee Colony Algorithm with Elitist Strategy"
+#     -> Meng-Dan Zhang, Zhi-Hui Zhan, Jing-Jing Li & Jun Zhang 
+function tournament(probabilities::Vector{Float64}, lambda::Float64 = 0.5)::Int
+  n::Int = ceil(lambda*length(probabilities))
+  solutions::Vector{Float64} = rand(probabilities, n)
+
+  return argmin(solutions)
+end
