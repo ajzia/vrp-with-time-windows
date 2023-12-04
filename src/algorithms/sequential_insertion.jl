@@ -5,8 +5,6 @@
 # Algorithms for the Vehicle Routing and Scheduling Problems with Time Window Constraints.
 # Operations Research 35(2):254-265
 
-include("./utils.jl")
-
 # ********************* COST FUNCTIONS ********************* #
 
 @inline function c_11(

@@ -1,12 +1,3 @@
-include("../../instances/types.jl")
-include("./ant.jl")
-include("./selection.jl")
-include("./stop_condition.jl")
-include("./insertion_procedure.jl")
-include("../sequential_insertion.jl")
-include("./local_search_procedure.jl")
-
-
 function new_active_ant(
   ant::Ant,
   instance::Instance,
@@ -14,6 +5,7 @@ function new_active_ant(
   distances::Array{Float64, 2},
   pheromones::Array{Float64, 2}, # global pheromone matrix
   selection::Function,
+  lambda::Float64, # tournament selection parameter
   tau::Float64,  # initial pheromone value
   rho::Float64,  # pheromone evaporation rate
   beta::Float64, # importance of attractiveness
@@ -85,7 +77,7 @@ function new_active_ant(
       cust_idx = possible_customers[index]
     else # exploration
       # choosing customers based on selection
-      index = selection(choice_probabilty)
+      index = selection(choice_probabilty, lambda)
       cust_idx = possible_customers[index]
     end
 
@@ -144,12 +136,13 @@ function ant_colony_system(
   initial_solution::Tuple{Float64, Vector{Vector{Int}}},
   stop_condition::Tuple{Function, Int},
   selection::Function;
+  lambda::Float64 = 0.5, # tournament selection parameter
   no_ants::Int = length(initial_solution[2]),
   q_0::Float64 = 0.4, # probabilty of choosing the best customer
   tau::Float64 = 1 / (length(instance.customers) * initial_solution[1]), # initial pheromone value
   rho::Float64 = 0.7, # pheromone evaporation rate
   beta::Float64 = 1., # importance of attractiveness
-)
+)::Tuple{Float64, Vector{Vector{Int}}}
   best_cost::Float64, best_solution::Vector{Vector{Int}} = initial_solution
 
   no_vehicles_used::Int = length(initial_solution[2])
@@ -179,6 +172,7 @@ function ant_colony_system(
         distances,
         pheromones,
         selection,
+        lambda,
         tau,
         rho,
         beta,
@@ -217,5 +211,5 @@ function ant_colony_system(
     start = increment(start, false)
   end # while
 
-  return best_solution, best_cost
+  return best_cost, best_solution
 end # ant_colony_system

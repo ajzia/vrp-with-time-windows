@@ -1,5 +1,3 @@
-include("./utils.jl")
-
 @inline function find_closest_customer(
   possible_customers::Vector{Int},
   begin_times::Vector{Float64},
@@ -65,7 +63,6 @@ function nearest_neighbour(
 
   service_start::Function = service_begin_time(customers, distances)
 
-  println("Running nearest neighbour algorithm...")
   for _ in 1:instance.m # O(m)
     # new vehicle's statistics
     vehicle_route::Vector{Int} = [0]
@@ -130,5 +127,5 @@ function nearest_neighbour(
     end
   end # for
 
-  return (cost, result)
+  return (round(cost, digits=2), result)
 end
