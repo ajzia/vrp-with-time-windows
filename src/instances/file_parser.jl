@@ -18,8 +18,9 @@ end
 """
     read_instance(path, no_customers)
 
-  Reads the file `path` and returns it as
-  an `Instance` object.
+  Reads the file `path` and returns it as an
+  `Instance` object. `no_customers` is the
+  number of customers to be read from the file.
 """
 function read_instance(path::String, no_customers::Int=-1)::Instance
   if !isfile(file_path(path))
@@ -54,24 +55,33 @@ function read_instance(path::String, no_customers::Int=-1)::Instance
   return Instance(intance_name, vehicle_info, customers)
 end
 
+"""
+    write_results(
+      instance::Instance,
+      nearest_neighbour_routes::Tuple{Float64, Vector{Vector{Int}}},
+      acs_results::Tuple{Float64, Vector{Vector{Int}}},
+      save_coords::Bool=false
+    )
 
+  Writes results of a single file for both
+  algorithms in a json file. It is also possible
+  to save the coordinates of the customers.
+"""
 function write_results(
   instance::Instance,
-  nearest_neighbour_routes::Vector{Vector{Int}},
-  nearest_neighbour_cost::Float64,
-  routes::Vector{Vector{Int}},
-  cost::Float64,
+  nearest_neighbour_results::Tuple{Float64, Vector{Vector{Int}}},
+  acs_results::Tuple{Float64, Vector{Vector{Int}}},
   save_coords::Bool=false
 )::Nothing
   println("Saving results... ")
   results::Dict{String, Any} = Dict(
     "nearest_neighbour" => Dict(
-      "cost" => nearest_neighbour_cost,
-      "routes" => nearest_neighbour_routes,
+      "cost" => nearest_neighbour_results[1],
+      "routes" => nearest_neighbour_results[2],
     ),
     "population" => Dict(
-      "cost" => cost,
-      "routes" => routes,
+      "cost" => acs_results[1],
+      "routes" => acs_results[2],
     ),
   )
   dir::String = file_path("../../results/")
@@ -163,6 +173,10 @@ function get_instance_info(
     dicttype=Dict
   )
 
+  if plot_type == "routes"
+    return (data, [])
+  end
+  
   parameters::Vector{String} = split(path, "-")
   if length(parameters) < 8
     println(parameters)

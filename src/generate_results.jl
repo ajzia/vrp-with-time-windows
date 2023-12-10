@@ -1,6 +1,3 @@
-include("./algorithms/algorithms.jl")
-using .Algorithms
-
 const selections::Dict = Dict(
   "r" => stochastic_acceptance,
   "t" => tournament,
@@ -12,8 +9,14 @@ const stop_conditions::Dict = Dict(
   "max_time" => maximum_time,
 )
 
-function main(args::Vector{String})
-  if length(args) < 8
+"""
+    generate_results(args::Vector{String})
+
+  Generate results for a given set of parameters
+  and saves them in a JSON file.
+"""
+function generate_results(args::Vector{String})
+  if length(args) < 9
     return
   end
 
@@ -87,7 +90,7 @@ function main(args::Vector{String})
       name = test_instances[1]
     end
 
-    repeat::Int = 1
+    repeat::Int = parse(Int, args[9])
     avg_cost::Float64 = 0.0
     avg_no_vehicles::Float64 = 0.0
     for it in 1:repeat

@@ -11,7 +11,7 @@ module Instances
   export reduce_instance_windows
 
   include("./plotting.jl")
-  export plot_routes
+  export plot_routes, read_tuning
 
   include("./prd.jl")
   export plot_prd

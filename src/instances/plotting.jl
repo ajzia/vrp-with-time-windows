@@ -31,14 +31,14 @@ const polish_algorithm_names::Dict = Dict(
 """
   plot_routes(path::String)
 
-  Generates plot of the found routes for nearest neighbour
+  Generates plots of the routes found using nearest neighbour
   and ant colony system algorithms.
 """
 function plot_routes(
   path::String,
 )::Nothing
   println("Generating plots...")
-  (data::Dict, instance_info::Vector) = get_instance_info(path, "routes")
+  (data::Dict, _) = get_instance_info(path, "routes")
   instance_name::String = split(path, "-")[1]
 
   coords::Vector{Tuple{Int, Int}} =
@@ -169,7 +169,7 @@ function read_tuning(folder::String)
     end
     results[instance_info[param]] = data
   end
-  plot_tuning(results, folder, dir)
+  generate_table(results, folder, dir)
 end
 
 
