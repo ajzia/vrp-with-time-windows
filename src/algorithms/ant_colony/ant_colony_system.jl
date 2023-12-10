@@ -5,7 +5,6 @@ function new_active_ant(
   distances::Array{Float64, 2},
   pheromones::Array{Float64, 2}, # global pheromone matrix
   selection::Function,
-  lambda::Float64, # tournament selection parameter
   tau::Float64,  # initial pheromone value
   rho::Float64,  # pheromone evaporation rate
   beta::Float64, # importance of attractiveness
@@ -77,7 +76,7 @@ function new_active_ant(
       cust_idx = possible_customers[index]
     else # exploration
       # choosing customers based on selection
-      index = selection(choice_probabilty, lambda)
+      index = selection(choice_probabilty)
       cust_idx = possible_customers[index]
     end
 
@@ -136,7 +135,6 @@ function ant_colony_system(
   initial_solution::Tuple{Float64, Vector{Vector{Int}}},
   stop_condition::Tuple{Function, Int},
   selection::Function;
-  lambda::Float64 = 0.5, # tournament selection parameter
   no_ants::Int = length(initial_solution[2]),
   q_0::Float64 = 0.4, # probabilty of choosing the best customer
   tau::Float64 = 1 / (length(instance.customers) * initial_solution[1]), # initial pheromone value
@@ -172,7 +170,6 @@ function ant_colony_system(
         distances,
         pheromones,
         selection,
-        lambda,
         tau,
         rho,
         beta,

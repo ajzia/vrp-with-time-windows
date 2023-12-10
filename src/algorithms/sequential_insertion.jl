@@ -164,7 +164,6 @@ function sequential_insertion(
 
   service_start::Function = service_begin_time(customers, distances)
 
-  println("Running sequential insertion algorithm...")
   for _ in 1:instance.m # O(m)
     # new vehicle's statistics
     vehicle_route::Vector{Int} = [0, 0]

@@ -103,7 +103,7 @@ function local_search_procedure(
   new_path::Vector{Int} = deepcopy(ant.path)
   new_cost::Float64 = ant.cost
 
-  max_search::Int = 25
+  max_search::Int = 50
   iterations::Int = 0
   start_route::Int = 1
 
