@@ -10,7 +10,7 @@ mutable struct Customer
   )::Customer
     if length(customer_info) != 7
       throw(
-        "Not enough / too much information about customer.\
+        "Not enough / too much information about customer. \
          Required: 7, Got: $(length(customer_info))"
       )
     end

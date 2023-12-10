@@ -1,4 +1,5 @@
-include("./algorithms/nearest_neighbour.jl")
+include("./algorithms/algorithms.jl")
+using .Algorithms
 using ArgParse
 
 const nearest_neighbour_labels::Vector{String} = [
