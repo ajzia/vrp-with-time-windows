@@ -23,9 +23,8 @@ const algorithms::Vector{String} = [
 ]
 
 
-function Base.zeros(::Type{String}, n::Int)::Vector{String}
-  return ["" for _ in 1:n]
-end
+Base.zeros(::Type{String}, n::Int)::Vector{String} = ["" for _ in 1:n]
+
 
 function generate_latex_table(
   algorithm::String,

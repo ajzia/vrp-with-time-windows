@@ -31,40 +31,39 @@ function reduce_time_windows(
   distances::Array{Float64, 2}
 )::Vector{Tuple{Float64, Float64}}
   no_windows::Int = length(time_windows)
-  reduced_windows = Vector{Tuple{Float64, Float64}}(undef, no_windows)
-  reduced_windows[1] = time_windows[1]
+  reduced_windows = copy(time_windows)
   
   while true
-    for (customer, window) in enumerate(time_windows)
+    for (customer) in 1:length(reduced_windows)
       if customer == 1 continue end
       # minimal arrival time from predecessors
       reduced_windows[customer] = (
         reduce_arrival_time(
-          window, [
-            time_windows[i][1] + distances[i, customer]
+          reduced_windows[customer], [
+            reduced_windows[i][1] + distances[i, customer]
               for i in 1:no_windows if i != customer
           ]
         ),
-        window[2]
+        reduced_windows[customer][2]
       )
       
       # minimal arrival time to successors
       reduced_windows[customer] = (
         reduce_arrival_time(
-          window, [
-            time_windows[j][1] - distances[customer, j]
+          reduced_windows[customer], [
+            reduced_windows[j][1] - distances[customer, j]
               for j in 1:no_windows if j != customer
             ]
           ),
-          window[2]
+          reduced_windows[customer][2]
       )
 
       # maximal departure time from predecessors
       reduced_windows[customer] = (
-        window[1],
+        reduced_windows[customer][1],
         reduce_departure_time(
-          window, [
-            time_windows[i][2] + distances[i, customer]
+          reduced_windows[customer], [
+            reduced_windows[i][2] + distances[i, customer]
               for i in 1:no_windows if i != customer
           ]
         )
@@ -72,10 +71,10 @@ function reduce_time_windows(
 
       # maximal departure time to successors
       reduced_windows[customer] = (
-        window[1],
+        reduced_windows[customer][1],
         reduce_departure_time(
-          window, [
-            time_windows[j][2] - distances[customer, j]
+          reduced_windows[customer], [
+            reduced_windows[j][2] - distances[customer, j]
               for j in 1:no_windows if j != customer
           ]
         )
@@ -90,4 +89,25 @@ function reduce_time_windows(
   end
 
   return reduced_windows
+end
+
+
+function reduce_instance_windows(
+  instance::Instance
+)::Instance
+  customers::Vector{Customer} = instance.customers
+  distances::Array{Float64, 2} = instance.distances
+
+  time_windows::Vector{Tuple{Float64, Float64}} = [
+    c.time_window for c in customers
+  ]
+  
+  reduced_windows::Vector{Tuple{Float64, Float64}} =
+  reduce_time_windows(time_windows, distances)
+
+  for (customer, window) in enumerate(reduced_windows)
+    instance.customers[customer].time_window = window
+  end
+
+  return instance
 end

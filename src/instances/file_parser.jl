@@ -94,6 +94,78 @@ function write_results(
   end
 end
 
+
+function dict_to_json(
+  name::String,
+  no_cust::Int,
+  results::Dict,
+)::Nothing
+  dir::String = file_path("../../results/")
+  (!isdir(dir)) && mkdir(dir)
+  dir *= "tuning/"
+  (!isdir(dir)) && mkdir(dir)
+
+  path::String = 
+    "$(name)-\
+    n$(no_cust)-\
+    sc$(results["parameters"]["stop_condition"])-\
+    sm$(results["parameters"]["max_stop"])-\
+    pop$(results["parameters"]["population_size"])-\
+    q_0$(results["parameters"]["q_0"])-\
+    rho$(results["parameters"]["rho"])-\
+    sel$(results["parameters"]["selection"]).json"
+
+  println("> Results saved in: ", joinpath(dir, path))
+
+  open(joinpath(dir, path), "w") do file
+    JSON.print(file, results)
+  end
+end
+
+
+function get_instance_info(
+  path::String,
+  plot_type::String,
+  tuning_folder::String="",
+)::Tuple{Dict, Vector}
+  dir::String = "../../results/"
+  if plot_type == "routes"
+    dir = dir * "coords/"
+  elseif plot_type == "tuning"
+    dir = dir * "tuning/"
+  end
+
+  dir = joinpath(@__DIR__, dir * tuning_folder * "/" * path)
+  if !isfile(dir)
+    println(dir)
+    throw("File $path does not exist")
+  end
+
+  data::Dict = JSON.parsefile(
+    dir,
+    dicttype=Dict
+  )
+
+  parameters::Vector{String} = split(path, "-")
+  if length(parameters) < 8
+    println(parameters)
+    throw("File $path does not contain all the parameters")
+  end
+
+  instance_info = [
+    parse(Int, parameters[2][2:end]), # no_customers
+    parameters[3][3:end], # stop cond
+    parse(Int, parameters[4][3:end]), # max_stop
+    parse(Int, parameters[5][4:end]), # pop_size
+    parse(Float64, parameters[6][4:end]), # q_0
+    parse(Float64, parameters[7][4:end]), # rho
+    string(parameters[8][4]), # selection
+  ]
+
+  return (data, instance_info)
+end
+
+
 function write_latex_table(
   path::String,
   table_titles::Vector{String},
@@ -103,6 +175,7 @@ function write_latex_table(
 )::Nothing
   dir::String = file_path("../../results")
   (!isdir(dir)) && mkdir(dir)
+
   dir = joinpath(dir, "tables")
   (!isdir(dir)) && mkdir(dir)
 
