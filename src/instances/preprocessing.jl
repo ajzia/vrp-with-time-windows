@@ -91,7 +91,13 @@ function reduce_time_windows(
   return reduced_windows
 end
 
+"""
+    reduce_instance_windows(instance::Instance)::Instance
 
+  Reduces time windows of the instance's customers according
+  to the rules described in the paper "A New Optimization
+  Algorithm for the Vehicle Routing Problem with Time Windows"
+"""
 function reduce_instance_windows(
   instance::Instance
 )::Instance

@@ -29,6 +29,12 @@ const main_solomon_types::Vector{String} = [
 @inline prd(gen::Float64, opt::Float64)::Float64 = 
   round((gen - opt) / opt * 100, digits=2)
 
+"""
+    plot_prd(folder::String, file::String)
+
+  Plots PRD for all main solomon types of instances
+  from tuning/`folder`/`file`.
+"""
 function plot_prd(
   folder::String,
   file::String,

@@ -1,3 +1,8 @@
+"""
+    service_begin_time(customers::Vector{Customer}, distances::Array{Float64, 2})
+  
+  Returns a function that calculates service begin time for a customer.
+"""
 function service_begin_time(
   customers::Vector{Customer},
   distances::Array{Float64, 2},
@@ -15,6 +20,20 @@ function service_begin_time(
 end
 
 
+"""
+    waiting_time(
+      i_route_index::Int,
+      j_route_index::Int,
+      vehicle_route::Vector{Int},
+      begin_times::Vector{Float64},
+      customers::Vector{Customer},
+      distances::Array{Float64, 2},
+    )
+  
+  Caclulates waiting time at customer `j_route_index`
+  coming from customer `i_route_index`. - time before
+  service can start at customer `j_route_index`.
+"""
 @inline function waiting_time(
   i_route_index::Int,
   j_route_index::Int,

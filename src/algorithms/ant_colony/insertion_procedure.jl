@@ -1,3 +1,4 @@
+# insertion based on Solomon Sequential Insertion I1 Algorithm
 function insertion_procedure(
   ant::Ant,
   customers::Vector{Customer},

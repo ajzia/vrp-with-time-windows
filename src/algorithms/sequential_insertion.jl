@@ -146,6 +146,16 @@ function find_best_insertion_places( # O(n^3)
 end
 
 
+"""
+    sequential_insertion(
+      instance::Instance,args...;
+      a1::Float64 = 0.5, a2::Float64 = 0.5,
+      λ::Float64 = 1.,μ::Float64 = 1.,
+    )
+
+  Solves the VRPTW problem using Solomon's Sequential Insertion I1 Algorithm.
+  Returns a tuple containing the cost of the solution and the routes.
+"""
 function sequential_insertion(
   instance::Instance,
   args...;

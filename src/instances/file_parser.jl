@@ -15,6 +15,12 @@ end
   )
 
 
+"""
+    read_instance(path, no_customers)
+
+  Reads the file `path` and returns it as
+  an `Instance` object.
+"""
 function read_instance(path::String, no_customers::Int=-1)::Instance
   if !isfile(file_path(path))
     throw(ArgumentError("File $path does not exist")) 
@@ -95,6 +101,11 @@ function write_results(
 end
 
 
+"""
+    dict_to_json(name, no_cust, results)
+
+  Saves `results` in a json file.
+"""
 function dict_to_json(
   name::String,
   no_cust::Int,
@@ -123,6 +134,12 @@ function dict_to_json(
 end
 
 
+"""
+    get_instance_info(path, plot_type, tuning_folder)
+
+  Gets data from the file `path` and returns a tuple
+  with the parameters from the file name and its data.
+"""
 function get_instance_info(
   path::String,
   plot_type::String,

@@ -45,6 +45,12 @@
 end
 
 
+"""
+    nearest_neighbour(instance, args...; δ1, δ2, δ3)
+
+  Solves the VRPTW instance using nearest neighbour algorithm.
+  Returns a tuple containing the cost of the solution and the routes.
+"""
 function nearest_neighbour(
   instance::Instance,
   args...;

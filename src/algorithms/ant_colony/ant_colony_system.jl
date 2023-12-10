@@ -130,6 +130,34 @@ function new_active_ant(
 end # new_active_ant
 
 
+"""
+    ant_colony_system(
+      instance::Instance,
+      initial_solution::Tuple{Float64, Vector{Vector{Int}}},
+      stop_condition::Tuple{Function, Int},
+      selection::Function;
+      no_ants::Int = length(initial_solution[2]),
+      q_0::Float64 = 0.4, # probabilty of choosing the best customer
+      tau::Float64 = 1 / (length(instance.customers) * initial_solution[1]), # initial pheromone value
+      rho::Float64 = 0.7, # pheromone evaporation rate
+      beta::Float64 = 1., # importance of attractiveness
+    )
+
+  Ant Colony System algorithm implementation.
+
+  # Arguments
+  - `instance::Instance`: instance of the problem
+  - `initial_solution::Tuple{Float64, Vector{Vector{Int}}}`: initial solution
+  - `stop_condition::Tuple{Function, Int}`: stop condition
+  - `selection::Function`: selection function
+  - `no_ants::Int`: number of ants
+  - `q_0::Float64`: probabilty of choosing the best customer
+  - `tau::Float64`: initial pheromone value
+  - `rho::Float64`: pheromone evaporation rate
+  - `beta::Float64`: importance of attractiveness
+
+  Returns a tuple containing the cost of the solution and the routes.
+"""
 function ant_colony_system(
   instance::Instance,
   initial_solution::Tuple{Float64, Vector{Vector{Int}}},

@@ -28,7 +28,12 @@ const polish_algorithm_names::Dict = Dict(
   "population" => "mrówkowego",
 )
 
+"""
+  plot_routes(path::String)
 
+  Generates plot of the found routes for nearest neighbour
+  and ant colony system algorithms.
+"""
 function plot_routes(
   path::String,
 )::Nothing
@@ -140,6 +145,12 @@ const params = Dict(
 )
 
 
+"""
+    read_tuning(folder::String)
+
+  Reads given `folder` from `results/tuning` directory
+  and generates a latex table with the results.
+"""
 function read_tuning(folder::String)
   dir::String = joinpath(@__DIR__, "../../results/tuning/" * folder)
   isdir(dir) || return
@@ -162,7 +173,12 @@ function read_tuning(folder::String)
 end
 
 
-function plot_tuning(
+"""
+    generate_table(results::Dict, folder::String, dir::String)
+
+  Generates a latex table with  data from `results`.
+"""
+function generate_table(
   results::Dict,
   folder::String,
   dir::String,
@@ -176,17 +192,8 @@ function plot_tuning(
     for val in all_keys
       push!(plots_data[instance], results[val][instance]["acs_cost"])
     end
-  end # key
-  generate_table(plots_data, folder, dir, all_keys)
-end
+  end
 
-
-function generate_table(
-  plots_data::Dict,
-  folder::String,
-  dir::String,
-  all_keys,
-)
   if length(keys(params[folder][1])) == 1
     table_title = params[folder][1][0]
   else 
