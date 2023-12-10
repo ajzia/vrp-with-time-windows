@@ -1,9 +1,6 @@
-include("../../src/instances/types.jl")
-include("../../src/instances/file_parser.jl")
-include("../../src/algorithms/nearest_neighbour.jl")
 using Test
 
-const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./instance5.txt"))
+five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./instance5.txt"))
 
 @testset "nearest_neighbour.jl" verbose = true begin
   five_customers::Vector{Customer} = five_customer_instance.customers

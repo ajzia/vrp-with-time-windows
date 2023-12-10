@@ -1,5 +1,5 @@
 module VRPTW
-
-# Write your package code here.
-
+  using Reexport
+  include("./algorithms/algorithms.jl")
+  @reexport using .Algorithms
 end

@@ -1,5 +1,3 @@
-include("../src/instances/types.jl")
-include("../src/instances/file_parser.jl")
 using Test
 
 @testset "Parsing files" verbose = true begin

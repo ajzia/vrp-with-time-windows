@@ -1,9 +1,6 @@
-include("../../src/instances/types.jl")
-include("../../src/instances/file_parser.jl")
-include("../../src/algorithms/sequential_insertion.jl")
 using Test
 
-const five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./instance5.txt"))
+five_customer_instance::Instance = read_instance(joinpath(@__DIR__, "./instance5.txt"))
 
 @testset "sequential_insertion.jl" verbose = true begin
   five_customers::Vector{Customer} = five_customer_instance.customers
